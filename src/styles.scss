@@ -1,1 +1,79 @@
-/* You can add global styles to this file, and also import other style files */
+// Variables
+$dark-square-color: #a6e3e9;
+$light-square-color: #defcfc;
+$highlight-color: #ffc107;
+
+$square-size: 10vmin;
+
+// Mixin for square styles
+@mixin square-style($color) {
+  width: $square-size;
+  height: $square-size;
+  background-color: $color;
+  display: inline-block;
+  vertical-align: top;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #F5F1A4;
+  }
+}
+
+body {
+  background-color: #f5f5f5;
+  font-family: "Roboto", sans-serif;
+
+  h1 {
+    text-align: center;
+  }
+
+  .center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+  }
+
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  // Chessboard styles
+  .grid-container {
+    border: 1px solid #000;
+
+    .row {
+      clear: both;
+
+      &:nth-child(odd) {
+        .square:nth-child(even) {
+          @include square-style($dark-square-color);
+        }
+
+        .square:nth-child(odd) {
+          @include square-style($light-square-color);
+        }
+      }
+
+      &:nth-child(even) {
+        .square:nth-child(even) {
+          @include square-style($light-square-color);
+        }
+
+        .square:nth-child(odd) {
+          @include square-style($dark-square-color);
+        }
+      }
+
+      .square {
+        border: 1px solid #000;
+        text-align: center;
+        vertical-align: middle;
+        line-height: $square-size;
+
+      }
+    }
+  }
+}

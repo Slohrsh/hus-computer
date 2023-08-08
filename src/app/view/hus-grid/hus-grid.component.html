@@ -1,0 +1,13 @@
+<h1>Hus Computer</h1>
+
+<img class="center" [src]="husi" width="50" height="250">
+
+<div class="container">
+  <div class="grid-container">
+    <div *ngFor="let row of grid; let y = index" class="row">
+      <div *ngFor="let cell of row; let x = index" class="square" (click)="move(x, y, $event)">
+        {{cell}}
+      </div>
+    </div>
+  </div>
+</div>
