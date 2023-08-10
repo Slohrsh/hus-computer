@@ -2,12 +2,28 @@
 
 <img class="center" [src]="husi" width="50" height="250">
 
+<div [style.visibility]="!isUpdating ? 'visible' : 'hidden'" class="information">
+  {{turn}}
+</div>
+<div class="information">
+  Remaining Beans: {{remainingBeans}}
+</div>
+
 <div class="container">
   <div class="grid-container">
     <div *ngFor="let row of grid; let y = index" class="row">
-      <div *ngFor="let cell of row; let x = index" class="square" (click)="move(x, y, $event)">
-        {{cell}}
+      <div *ngFor="let cell of row; let x = index" 
+        class="square square[{{y}}][{{x}}]"
+        [ngClass]="{'moved-bean' : cell.hasChanged}"
+        [ngClass]="{'stolen-beans' : cell.isStolen}"
+        (click)="move(x, y, $event)"
+        (mouseover)="setFocus(x, y)" (mouseout)="removeFocus(x, y)">
+        {{cell.value}}
       </div>
     </div>
   </div>
+
+  <button [style.visibility]="!isUpdating && isPlayerATurn ? 'visible' : 'hidden'" (click)="startComputerMove()">
+    Start Computer
+  </button>
 </div>

@@ -2,8 +2,11 @@
 $dark-square-color: #a6e3e9;
 $light-square-color: #defcfc;
 $highlight-color: #ffc107;
+$border-color: #000000;
 
 $square-size: 10vmin;
+
+
 
 // Mixin for square styles
 @mixin square-style($color) {
@@ -14,8 +17,24 @@ $square-size: 10vmin;
   vertical-align: top;
   cursor: pointer;
 
-  &:hover {
+  &.focused-own {
+    transition: .1s;
     background-color: #F5F1A4;
+  }
+
+  &.focused-other {
+    transition: .1s;
+    background-color: #cacaca9a;
+  }
+
+  &.stolen-beans {
+    transition: .5s;
+    background-color: #ffbdb9;
+  }
+
+  &.moved-bean {
+    transition: .5s;
+    background-color: #b3e4b1;
   }
 }
 
@@ -27,6 +46,10 @@ body {
     text-align: center;
   }
 
+  .information {
+    text-align: center;
+  }
+
   .center {
     display: block;
     margin-left: auto;
@@ -35,44 +58,68 @@ body {
   }
 
   .container {
-    display: flex;
+    display: grid;
     justify-content: center;
     align-items: center;
-  }
 
-  // Chessboard styles
-  .grid-container {
-    border: 1px solid #000;
 
-    .row {
-      clear: both;
+    // Chessboard styles
+    .grid-container {
+      border: 1px solid #000;
+      border-right: 3px solid $border-color;
+      border-bottom: 3px solid $border-color;
 
-      &:nth-child(odd) {
-        .square:nth-child(even) {
-          @include square-style($dark-square-color);
-        }
-
-        .square:nth-child(odd) {
-          @include square-style($light-square-color);
-        }
+      &:nth-child(2n + 2) {
+        background-color: $dark-square-color;
       }
 
-      &:nth-child(even) {
-        .square:nth-child(even) {
-          @include square-style($light-square-color);
-        }
-
-        .square:nth-child(odd) {
-          @include square-style($dark-square-color);
-        }
+      &:nth-child(3n + 1) {
+        border-left: 3px solid $border-color;
       }
 
-      .square {
-        border: 1px solid #000;
-        text-align: center;
-        vertical-align: middle;
-        line-height: $square-size;
+      &:nth-child(1) {
+        border-top: 3px solid $border-color;
+      }
 
+      &:nth-child(2) {
+        border-top: 3px solid $border-color;
+      }
+
+      &:nth-child(3) {
+        border-top: 3px solid $border-color;
+      }
+
+      .row {
+        clear: both;
+
+        &:nth-child(odd) {
+          .square:nth-child(even) {
+            @include square-style($dark-square-color);
+          }
+
+          .square:nth-child(odd) {
+            @include square-style($light-square-color);
+          }
+        }
+
+        &:nth-child(even) {
+          .square:nth-child(even) {
+            @include square-style($light-square-color);
+          }
+
+          .square:nth-child(odd) {
+            @include square-style($dark-square-color);
+          }
+        }
+
+        .square {
+          border: 1px solid #000;
+          text-align: center;
+          vertical-align: middle;
+          line-height: $square-size;
+
+
+        }
       }
     }
   }

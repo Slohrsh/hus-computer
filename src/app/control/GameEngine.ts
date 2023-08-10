@@ -1,9 +1,10 @@
 import { Subject } from 'rxjs';
 import { GameState } from '../model/GameState';
+import { Move } from './dataObjects';
 
 export class GameEngine {
 
-    stateChangedSubject$: Subject<GameState> = new Subject();
+    stateChangedSubject$: Subject<Move[]> = new Subject();
 
     state: GameState;
 
@@ -36,33 +37,35 @@ export class GameEngine {
     }
 
     movePlayerA(x: number, y: number, updateFrontend: boolean): GameState {
-        return this.movePlayer(this.state.playerA, this.state.playerB, x, y, updateFrontend);
+        return this.movePlayer(this.state.playerA, this.state.playerB, x, y, true, updateFrontend);
     }
 
     movePlayerB(x: number, y: number, updateFrontend: boolean): GameState {
-        return this.movePlayer(this.state.playerB, this.state.playerA, x, y, updateFrontend);
+        return this.movePlayer(this.state.playerB, this.state.playerA, x, y, false, updateFrontend);
     }
 
-    private movePlayer(player: number[][], opponent: number[][], x: number, y: number, updateFrontend: boolean): GameState {
-        this.movePlayerInternally(player, opponent, x, y, updateFrontend);
+    private movePlayer(player: number[][], opponent: number[][], x: number, y: number, isPlayerA: boolean, updateFrontend: boolean): GameState {
+        let moves = this.movePlayerInternally(player, opponent, x, y, isPlayerA);
         this.state.addMove();
         this.state.setGameOver(this.isGameOver());
         if (updateFrontend) {
-            this.update();
+            this.update(moves);
         }
         return this.state;
     }
 
-    private movePlayerInternally(player: number[][], opponent: number[][], x: number, y: number, updateFrontend: boolean): void {
+    private movePlayerInternally(player: number[][], opponent: number[][], x: number, y: number, isPlayerA: boolean): Move[] {
         const beans = this.getBeansOfPlayerAtPosition(player, x, y);
 
         if (beans <= 1) {
-            return;
+            return [];
         }
 
+        let moves: Move[] = [];
         let newX = x;
         let newY = y;
         this.removeBeansOfPlayerAtPosition(player, x, y);
+        moves.push(new Move(isPlayerA, beans, 0, x, y, false));
         let iterator = newY === 1 ? 1 : -1;
         for (let b = beans; b > 0; b--) {
             newX += iterator;
@@ -71,7 +74,9 @@ export class GameEngine {
                 newY = (newY + 1) % 2;
                 newX += iterator;
             }
-            this.addBeanOfPlayerAtPosition(player, newX, newY);
+            
+            let newBeans = this.addBeanOfPlayerAtPosition(player, newX, newY);
+            
             if (b === 1) {
                 if (!this.state.startPhase && newY === 1 && this.getBeansOfPlayerAtPosition(player, newX, newY) > 1) {
                     this.stealOpponentBeans(player, opponent, newX, newY);
@@ -79,19 +84,25 @@ export class GameEngine {
                     if (currentBeansOfPlayerField > 1) {
                         b += currentBeansOfPlayerField;
                         this.removeBeansOfPlayerAtPosition(player, newX, newY);
+                        moves.push(new Move(isPlayerA, b - 1, 0, newX, newY, true));
+                    } else {
+                        moves.push(new Move(isPlayerA, b - 1, currentBeansOfPlayerField, newX, newY, false));
                     }
                 } else {
                     const beansOfNewField = this.getBeansOfPlayerAtPosition(player, newX, newY);
                     if (beansOfNewField > 1) {
                         b += beansOfNewField;
                         this.removeBeansOfPlayerAtPosition(player, newX, newY);
+                        moves.push(new Move(isPlayerA, b - 1, 0, newX, newY, false));
+                    } else {
+                        moves.push(new Move(isPlayerA, b - 1, beansOfNewField, newX, newY, false));
                     }
                 }
-            }
-            if (updateFrontend) {
-                this.update();
+            } else {
+                moves.push(new Move(isPlayerA, b - 1, newBeans, newX, newY, false));
             }
         }
+        return moves;
     }
 
     private stealOpponentBeans(player: number[][], opponent: number[][], newX: number, newY: number): void {
@@ -112,12 +123,13 @@ export class GameEngine {
         return this.getBeansOfPlayerAtPosition(opponent, 7 - x, y);
     }
 
-    private addBeanOfPlayerAtPosition(player: number[][], x: number, y: number): void {
-        this.addBeansOfPlayerAtPosition(player, 1, x, y);
+    private addBeanOfPlayerAtPosition(player: number[][], x: number, y: number): number {
+        return this.addBeansOfPlayerAtPosition(player, 1, x, y);
     }
 
-    private addBeansOfPlayerAtPosition(player: number[][], amountOfBeans: number, x: number, y: number): void {
+    private addBeansOfPlayerAtPosition(player: number[][], amountOfBeans: number, x: number, y: number): number {
         player[y][x] += amountOfBeans;
+        return player[y][x];
     }
 
     private removeBeansOfPlayerAtPosition(player: number[][], x: number, y: number): void {
@@ -132,7 +144,7 @@ export class GameEngine {
         let isPlayerAGameOver = true;
         let isPlayerBGameOver = true;
         for (let y = 0; y < 2; y++) {
-            for (let x = 7; x >= 0; x--) {
+            for (let x = 0; x < 8; x++) {
                 if (this.state.playerA[y][x] > 1) {
                     isPlayerAGameOver = false;
                 }
@@ -162,7 +174,7 @@ export class GameEngine {
         return this.didPlayerLoose(this.state.playerA);
     }
 
-    async update() {
-        this.stateChangedSubject$.next(this.state);
+    async update(moves: Move[]) {
+        this.stateChangedSubject$.next(moves);
     }
 }
