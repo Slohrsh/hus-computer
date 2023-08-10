@@ -141,7 +141,7 @@ export class HusGridComponent implements OnInit {
         }
       }
 
-      await this.delay(50);
+      await this.delay(500);
       this.grid[y][x].hasChanged = false;
       this.grid = Object.assign([], this.grid);
       if (move.stealBeans) {
