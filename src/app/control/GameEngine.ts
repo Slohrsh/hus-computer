@@ -86,7 +86,7 @@ export class GameEngine {
                         this.removeBeansOfPlayerAtPosition(player, newX, newY);
                         moves.push(new Move(isPlayerA, b - 1, 0, newX, newY, true));
                     } else {
-                        moves.push(new Move(isPlayerA, b - 1, currentBeansOfPlayerField, newX, newY, false));
+                        moves.push(new Move(isPlayerA, b - 1, 1, newX, newY, false));
                     }
                 } else {
                     const beansOfNewField = this.getBeansOfPlayerAtPosition(player, newX, newY);

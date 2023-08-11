@@ -88,7 +88,7 @@ export class HusGridComponent implements OnInit {
   }
 
   move(x: number, y: number, element: Event) {
-    if (y > 1) {
+    if (y > 1 && !this.isUpdating && !this.isPlayerATurn) {
       this.engine.movePlayerB(x, 3 - y, true);
       this.isPlayerATurn = true;
       this.turn = "Computers turn";
@@ -121,8 +121,8 @@ export class HusGridComponent implements OnInit {
         stealY2 = 3;
       } else {
         move.y == 1 ? y = 2 : y = 3;
-        stealY1 = 0;
-        stealY2 = 1;
+        stealY1 = 1;
+        stealY2 = 0;
       }
       this.grid[y][x].value = move.beansOfField;
       this.grid[y][x].hasChanged = true;
@@ -134,10 +134,11 @@ export class HusGridComponent implements OnInit {
         if (this.grid[stealY1][x].value > 0) {
           this.grid[stealY1][x].value = 0;
           this.grid[stealY1][x].isStolen = true;
-        }
-        if (this.grid[stealY2][x].value > 0) {
-          this.grid[stealY2][x].value = 0;
-          this.grid[stealY2][x].isStolen = true;
+
+          if (this.grid[stealY2][x].value > 0) {
+            this.grid[stealY2][x].value = 0;
+            this.grid[stealY2][x].isStolen = true;
+          }
         }
       }
 
@@ -151,6 +152,7 @@ export class HusGridComponent implements OnInit {
     }
 
     this.isUpdating = false;
+    this.drawGrid();
 
     if (this.engine.isGameOver()) {
       if (this.engine.didPlayerALoose()) {
@@ -163,6 +165,20 @@ export class HusGridComponent implements OnInit {
     } else {
       this.husi = '../../assets/waving1.svg';
     }
+  }
+
+  drawGrid() {
+    let state = this.engine.state;
+    let grid: number[][] = [];
+    for (let y: number = 0; y < 2; y++) {
+      grid[y] = [];
+      grid[3 - y] = [];
+      for (let x: number = 0; x < 8; x++) {
+        grid[y][x] = state.playerA[y][7 - x];
+        grid[3 - y][x] = state.playerB[y][x];
+      }
+    }
+    console.log(grid);
   }
 
   delay(ms: number) {
