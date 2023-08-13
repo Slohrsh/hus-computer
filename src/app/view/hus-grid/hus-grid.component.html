@@ -16,6 +16,8 @@
         class="square square[{{y}}][{{x}}]"
         [ngClass]="{'moved-bean' : cell.hasChanged}"
         [ngClass]="{'stolen-beans' : cell.isStolen}"
+        [ngClass]="{'focused-allowed' : cell.isFocusedAllowed}"
+        [ngClass]="{'focused-not-allowed' : cell.isFocusedNotAllowed}"
         (click)="move(x, y, $event)"
         (mouseover)="setFocus(x, y)" (mouseout)="removeFocus(x, y)">
         {{cell.value}}

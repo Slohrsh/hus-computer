@@ -4,31 +4,25 @@ import { Move } from './dataObjects';
 
 export class GameEngine {
 
-    stateChangedSubject$: Subject<Move[]> = new Subject();
-
+    stateChangedSubject$ = new Subject<Move[]>();
     state: GameState;
 
-    constructor(state: GameState);
-
-    constructor();
-
-    constructor(state?: GameState) {
-        this.state = state || new GameState();
+    constructor(state: GameState = new GameState()) {
+        this.state = state;
     }
 
     init(): void {
         for (let y = 0; y < 2; y++) {
-            this.state.playerA[y] = [];
-            this.state.playerB[y] = [];
-            for (let x = 0; x <= 7; x++) {
-                if (y === 0 || x >= 4) {
-                    this.state.playerA[y][x] = 2;
-                    this.state.playerB[y][x] = 2;
-                } else {
-                    this.state.playerA[y][x] = 0;
-                    this.state.playerB[y][x] = 0;
-                }
-            }
+            this.initializePlayerRow(this.state.playerA, y);
+            this.initializePlayerRow(this.state.playerB, y);
+        }
+    }
+
+    private initializePlayerRow(player: number[][], y: number): void {
+        player[y] = [];
+        for (let x = 0; x <= 7; x++) {
+            const initialValue = y === 0 || x >= 4 ? 2 : 0;
+            player[y][x] = initialValue;
         }
     }
 
@@ -45,7 +39,7 @@ export class GameEngine {
     }
 
     private movePlayer(player: number[][], opponent: number[][], x: number, y: number, isPlayerA: boolean, updateFrontend: boolean): GameState {
-        let moves = this.movePlayerInternally(player, opponent, x, y, isPlayerA);
+        const moves = this.movePlayerInternally(player, opponent, x, y, isPlayerA);
         this.state.addMove();
         this.state.setGameOver(this.isGameOver());
         if (updateFrontend) {
@@ -74,9 +68,9 @@ export class GameEngine {
                 newY = (newY + 1) % 2;
                 newX += iterator;
             }
-            
+
             let newBeans = this.addBeanOfPlayerAtPosition(player, newX, newY);
-            
+
             if (b === 1) {
                 if (!this.state.startPhase && newY === 1 && this.getBeansOfPlayerAtPosition(player, newX, newY) > 1) {
                     this.stealOpponentBeans(player, opponent, newX, newY);
@@ -107,6 +101,7 @@ export class GameEngine {
 
     private stealOpponentBeans(player: number[][], opponent: number[][], newX: number, newY: number): void {
         const opponentBeansFirstLine = this.getBeansOfOpponentAtPosition(opponent, newX, 1);
+
         if (opponentBeansFirstLine > 0) {
             const opponentBeansSecondLine = this.getBeansOfOpponentAtPosition(opponent, newX, 0);
             this.addBeansOfPlayerAtPosition(player, opponentBeansFirstLine + opponentBeansSecondLine, newX, newY);
@@ -174,7 +169,7 @@ export class GameEngine {
         return this.didPlayerLoose(this.state.playerA);
     }
 
-    async update(moves: Move[]) {
+    async update(moves: Move[]): Promise<void> {
         this.stateChangedSubject$.next(moves);
     }
 }

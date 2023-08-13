@@ -17,12 +17,12 @@ $square-size: 10vmin;
   vertical-align: top;
   cursor: pointer;
 
-  &.focused-own {
+  &.focused-allowed {
     transition: .1s;
     background-color: #F5F1A4;
   }
 
-  &.focused-other {
+  &.focused-not-allowed {
     transition: .1s;
     background-color: #cacaca9a;
   }

@@ -60,21 +60,15 @@ export class HusGridComponent implements OnInit {
   }
 
   removeFocus(x: number, y: number) {
-    let element = this.getSquareByCoordinates(x, y);
-    if (element.length > 0) {
-      element[0].classList.remove('focused-own');
-      element[0].classList.remove('focused-other');
-    }
+    this.grid[y][x].isFocusedAllowed = false;
+    this.grid[y][x].isFocusedNotAllowed = false;
   }
 
   setFocus(x: number, y: number) {
-    let element = this.getSquareByCoordinates(x, y);
-    if (element.length > 0) {
-      if (this.isOwnFocus(x, y) && !this.isPlayerATurn) {
-        element[0].classList.add('focused-own');
-      } else {
-        element[0].classList.add('focused-other');
-      }
+    if (this.isOwnFocus(x, y) && !this.isPlayerATurn && !this.isUpdating) {
+      this.grid[y][x].isFocusedAllowed = true;
+    } else {
+      this.grid[y][x].isFocusedNotAllowed = true;
     }
   }
 
